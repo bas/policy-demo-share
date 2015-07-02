@@ -1,0 +1,483 @@
+<alfresco-config>
+
+	<config evaluator="string-compare" condition="DocumentLibrary"
+		replace="false">
+		<aspects>
+			<!-- Aspects that a user can see -->
+			<visible>
+				<aspect name="pld:policy" />
+				<aspect name="cm:author" />
+				<aspect name="cm:titled" />
+			</visible>
+
+			<!-- Aspects that a user can add. Same as "visible" if left empty -->
+			<addable>
+			</addable>
+
+			<!-- Aspects that a user can remove. Same as "visible" if left empty -->
+			<removeable>
+			</removeable>
+		</aspects>
+	</config>
+
+	<config evaluator="string-compare" condition="DocumentLibrary">
+		<sorting>
+			<sort label="Policy Type">pld:policyType|true</sort>
+			<sort label="Policy Status">pld:status|true</sort>
+		</sorting>
+	</config>
+
+	<config evaluator="string-compare" condition="DocumentLibraryViews">
+		<view-renderers>
+			<view-renderer id="policy" iconClass="table"
+				label="button.view.policy" index="50"
+				widget="Alfresco.DocumentListTableViewRenderer">
+				<dependencies>
+					<js src="components/documentlibrary/documentlist-view-detailed.js" />
+					<js src="components/documentlibrary/documentlist-view-table.js" />
+					<css src="components/documentlibrary/documentlist-view-table.css" />
+				</dependencies>
+				<json-config>
+					{
+					"actions": {
+					"show": "true"
+					},
+					"indicators": {
+					"show":
+					"true"
+					},
+					"selector": {
+					"show": "true"
+					},
+					"thumbnail": {
+					"show": "true"
+					},
+					"propertyColumns": [
+					{
+					"property": "name",
+					"label": "label.name",
+					"width": "300"
+					},
+					{
+					"property": "cm:title",
+					"label": "label.title"
+					},
+					{
+					"property": "cm:description",
+					"label": "label.description"
+					},
+					{
+					"property": "cm:creator",
+					"label": "label.creator"
+					},
+					{
+					"property":
+					"pld:policyType",
+					"label": "label.pld_type"
+					},
+					{
+					"property":
+					"pld:status",
+					"label": "label.pld_status"
+					},
+					{
+					"property":
+					"pld:review",
+					"label": "label.pld_review"
+					}
+					]
+					}
+				</json-config>
+			</view-renderer>
+		</view-renderers>
+	</config>
+
+	<config evaluator="aspect" condition="pld:policy">
+		<forms>
+			<!-- Default form configuration for the cm:content type -->
+			<form>
+				<field-visibility>
+					<!-- pld:policy aspect -->
+					<show id="pld:status" />
+					<show id="pld:policyType" />
+					<show id="pld:manager" />
+					<show id="pld:review" />
+
+					<!-- cm:effectivity aspect -->
+					<show id="cm:from" for-mode="view"/>
+					<show id="cm:to" for-mode="view"/>
+				</field-visibility>
+				<appearance>
+					<set id="policy" appearance="bordered-panel" label="Policy Document Details" />
+					<field id="pld:status" set="policy" />
+					<field id="pld:policyType" set="policy" />
+					<field id="pld:manager" set="policy" />
+					<field id="pld:review" set="policy" />
+					<field id="cm:from" set="policy" />
+					<field id="cm:to" set="policy" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+	<!-- cm:content type (existing nodes) -->
+	<config evaluator="node-type" condition="cm:content">
+		<forms>
+			<form id="doclib-simple-metadata">
+				<field-visibility>
+					<!-- pld:policy -->
+					<show id="pld:status" />
+					<show id="pld:policyType" />
+				</field-visibility>
+				<edit-form template="../documentlibrary/forms/doclib-simple-metadata.ftl" />
+				<appearance>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+	<config evaluator="model-type" condition="cm:content">
+		<forms>
+			<!-- Search form -->
+			<form id="policysearch">
+				<field-visibility>
+					<show id="pld:policyType" force="true" />
+					<show id="pld:status" force="true" />
+					<show id="pld:review" force="true" />
+				</field-visibility>
+				<appearance>
+					<field id="pld:policyType" label="Policy Type">
+						<control template="/org/alfresco/components/form/controls/selectmany.ftl" />
+					</field>
+					<field id="pld:status" label-id="Policy Status">
+						<control template="/org/alfresco/components/form/controls/selectmany.ftl" />
+					</field>
+					<field id="pld:review" label-id="Review Date">
+						<control template="/org/alfresco/components/form/controls/daterange.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+	<config replace="true" evaluator="string-compare" condition="AdvancedSearch">
+		<advanced-search>
+			<forms>
+				<form label="Policies" description="Search for Policy Documents"
+					id="policysearch">cm:content
+				</form>
+				<form labelId="search.form.label.cm_content" descriptionId="search.form.desc.cm_content">cm:content
+				</form>
+				<form labelId="search.form.label.cm_folder" descriptionId="search.form.desc.cm_folder">cm:folder
+				</form>
+			</forms>
+		</advanced-search>
+	</config>
+
+	<config evaluator="string-compare" condition="activiti$policyWorkflow">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="bpm:workflowDescription" />
+					<show id="bpm:workflowDueDate" />
+					<show id="bpm:workflowPriority" />
+					<show id="pldwf:declareAsRecord" />
+					<show id="pldwf:legal" />
+					<show id="bpm:assignee" />
+					<show id="packageItems" />
+				</field-visibility>
+				<appearance>
+					<set id="" appearance="title" label-id="workflow.set.general" />
+					<set id="info" appearance=""
+						template="/org/alfresco/components/form/2-column-set.ftl" />
+					<set id="assignee" appearance="fieldset" label-id="workflow.set.assignee" />
+					<set id="items" appearance="fieldset" label-id="workflow.set.items" />
+					<field id="bpm:workflowDescription" label-id="workflow.field.message">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl">
+							<control-param name="style">width: 95%</control-param>
+						</control>
+					</field>
+					<field id="bpm:workflowDueDate" label-id="workflow.field.due"
+						set="info">
+						<control template="/org/alfresco/components/form/controls/date.ftl">
+							<control-param name="showTime">false</control-param>
+							<control-param name="submitTime">false</control-param>
+						</control>
+					</field>
+					<field id="bpm:workflowPriority" label-id="workflow.field.priority"
+						set="info">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/priority.ftl" />
+					</field>
+					<field id="pldwf:declareAsRecord" label="Declare as Record"
+						set="info" />
+					<field id="pldwf:legal" label="Reviewer" set="assignee" />
+					<field id="bpm:assignee" label="Quality Assurance Manager"
+						set="assignee" />
+					<field id="packageItems" set="items" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="task-type" condition="pldwf:startTask">
+		<forms>
+			<form id="workflow-details">
+				<field-visibility>
+					<show id="pldwf:declareAsRecord" />
+				</field-visibility>
+				<appearance>
+					<set id="" appearance="title" label-id="workflow.set.workflow.more_info" />
+					<field id="pldwf:declareAsRecord" label="Declare as Record"
+						set="" />
+					<set id="items" appearance="title" label-id="workflow.set.items" />
+					<field id="packageItems" set="items" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="task-type" condition="pldwf:createTask">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="message" />
+					<show id="taskOwner" />
+					<show id="bpm:priority" />
+					<show id="bpm:dueDate" />
+					<show id="bpm:taskId" />
+					<show id="bpm:status" />
+					<show id="packageItems" />
+					<show id="bpm:comment" />
+					<show id="transitions" />
+				</field-visibility>
+				<appearance>
+					<set id="" appearance="title" label-id="workflow.set.task.info" />
+					<set id="info" appearance=""
+						template="/org/alfresco/components/form/3-column-set.ftl" />
+					<set id="progress" appearance="title" label-id="workflow.set.task.progress" />
+					<set id="items" appearance="title" label-id="workflow.set.items" />
+					<set id="response" appearance="title" label-id="workflow.set.response" />
+
+					<field id="message">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="taskOwner" set="info" />
+					<field id="bpm:taskId" set="info">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:priority" set="info" read-only="true">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/priority.ftl" />
+					</field>
+					<field id="bpm:dueDate" set="info" label-id="workflow.field.due">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:status" set="progress" />
+					<field id="packageItems" set="items" />
+					<field id="bpm:comment" label-id="workflow.field.comment"
+						set="response">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="transitions" set="response" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+	<config evaluator="task-type" condition="pldwf:reviseTask">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="message" />
+					<show id="taskOwner" />
+					<show id="bpm:priority" />
+					<show id="bpm:dueDate" />
+					<show id="bpm:taskId" />
+					<show id="bpm:status" />
+					<show id="packageItems" />
+					<show id="bpm:comment" />
+					<show id="transitions" />
+				</field-visibility>
+				<appearance>
+					<set id="" appearance="title" label-id="workflow.set.task.info" />
+					<set id="info" appearance=""
+						template="/org/alfresco/components/form/3-column-set.ftl" />
+					<set id="progress" appearance="title" label-id="workflow.set.task.progress" />
+					<set id="items" appearance="title" label-id="workflow.set.items" />
+					<set id="response" appearance="title" label-id="workflow.set.response" />
+
+					<field id="message">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="taskOwner" set="info" />
+					<field id="bpm:taskId" set="info">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:priority" set="info" read-only="true">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/priority.ftl" />
+					</field>
+					<field id="bpm:dueDate" set="info" label-id="workflow.field.due">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:status" set="progress" />
+					<field id="packageItems" set="items" />
+					<field id="bpm:comment" label-id="workflow.field.comment"
+						set="response">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="transitions" set="response" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+	<config evaluator="task-type" condition="pldwf:rejectedTask">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="message" />
+					<show id="taskOwner" />
+					<show id="bpm:priority" />
+					<show id="bpm:dueDate" />
+					<show id="bpm:taskId" />
+					<show id="bpm:status" />
+					<show id="packageItems" />
+					<show id="bpm:comment" />
+					<show id="transitions" />
+				</field-visibility>
+				<appearance>
+					<set id="" appearance="title" label-id="workflow.set.task.info" />
+					<set id="info" appearance=""
+						template="/org/alfresco/components/form/3-column-set.ftl" />
+					<set id="progress" appearance="title" label-id="workflow.set.task.progress" />
+					<set id="items" appearance="title" label-id="workflow.set.items" />
+					<set id="response" appearance="title" label-id="workflow.set.response" />
+
+					<field id="message">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="taskOwner" set="info" />
+					<field id="bpm:taskId" set="info">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:priority" set="info" read-only="true">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/priority.ftl" />
+					</field>
+					<field id="bpm:dueDate" set="info" label-id="workflow.field.due">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:status" set="progress" />
+					<field id="packageItems" set="items" />
+					<field id="bpm:comment" label-id="workflow.field.comment"
+						set="response">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl" />
+					</field>
+					<field id="transitions" set="response" />
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+	<config evaluator="task-type" condition="pldwf:reviewTask">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="message" />
+					<show id="taskOwner" />
+					<show id="bpm:priority" />
+					<show id="bpm:dueDate" />
+					<show id="bpm:taskId" />
+					<show id="packageItems" />
+					<show id="bpm:comment" />
+					<show id="pldwf:reviewOutcome" />
+				</field-visibility>
+				<appearance>
+					<set id="" appearance="title" label-id="workflow.set.task.info" />
+					<set id="info" appearance=""
+						template="/org/alfresco/components/form/3-column-set.ftl" />
+					<set id="items" appearance="title" label-id="workflow.set.items" />
+					<set id="response" appearance="title" label-id="workflow.set.response" />
+
+					<field id="message">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="taskOwner" set="info" />
+					<field id="bpm:taskId" set="info">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:priority" set="info" read-only="true">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/priority.ftl" />
+					</field>
+					<field id="bpm:dueDate" set="info" label-id="workflow.field.due">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="packageItems" set="items" />
+					<field id="bpm:comment" label-id="workflow.field.comment"
+						set="response">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl">
+							<control-param name="style">width: 99%</control-param>
+						</control>
+					</field>
+					<field id="pldwf:reviewOutcome" label-id="workflow.field.outcome"
+						set="response">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+	<config evaluator="task-type" condition="pldwf:approvalTask">
+		<forms>
+			<form>
+				<field-visibility>
+					<show id="message" />
+					<show id="taskOwner" />
+					<show id="bpm:priority" />
+					<show id="bpm:dueDate" />
+					<show id="bpm:taskId" />
+					<show id="packageItems" />
+					<show id="bpm:comment" />
+					<show id="pldwf:approvalOutcome" />
+				</field-visibility>
+				<appearance>
+					<set id="" appearance="title" label-id="workflow.set.task.info" />
+					<set id="info" appearance=""
+						template="/org/alfresco/components/form/3-column-set.ftl" />
+					<set id="items" appearance="title" label-id="workflow.set.items" />
+					<set id="response" appearance="title" label-id="workflow.set.response" />
+
+					<field id="message">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="taskOwner" set="info" />
+					<field id="bpm:taskId" set="info">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="bpm:priority" set="info" read-only="true">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/priority.ftl" />
+					</field>
+					<field id="bpm:dueDate" set="info" label-id="workflow.field.due">
+						<control template="/org/alfresco/components/form/controls/info.ftl" />
+					</field>
+					<field id="packageItems" set="items" />
+					<field id="bpm:comment" label-id="workflow.field.comment"
+						set="response">
+						<control template="/org/alfresco/components/form/controls/textarea.ftl">
+							<control-param name="style">width: 99%</control-param>
+						</control>
+					</field>
+					<field id="pldwf:approvalOutcome" label-id="workflow.field.outcome"
+						set="response">
+						<control
+							template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
+					</field>
+				</appearance>
+			</form>
+		</forms>
+	</config>
+
+</alfresco-config>
