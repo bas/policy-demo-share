@@ -182,6 +182,7 @@
 					<show id="bpm:workflowDueDate" />
 					<show id="bpm:workflowPriority" />
 					<show id="pldwf:declareAsRecord" />
+					<show id="pldwf:broadcast" />
 					<show id="pldwf:legal" />
 					<show id="bpm:assignee" />
 					<show id="packageItems" />
@@ -210,6 +211,8 @@
 							template="/org/alfresco/components/form/controls/workflow/priority.ftl" />
 					</field>
 					<field id="pldwf:declareAsRecord" label="Declare as Record"
+						set="info" />
+					<field id="pldwf:broadcast" label="Broadcast Message"
 						set="info" />
 					<field id="pldwf:legal" label="Reviewer" set="assignee" />
 					<field id="bpm:assignee" label="Quality Assurance Manager"
